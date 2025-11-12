@@ -7,7 +7,7 @@ type Config struct {
 
 func Load() Config {
 	return Config{
-		DBURL:  "postgres://postgres:gaurav@localhost:5432/User-Management?sslmode=disable",
+		DBURL:  "postgres://user:dbpassword@db:5432/appdb?sslmode=disable",
 		HTTPPort: ":8080",
 	}
 }

@@ -34,7 +34,7 @@ func (h *Handler) createUser(c *gin.Context){
 	}
 	id, err := h.service.CreateUser(c.Request.Context(), req.Name, req.Email)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message":"Internal server Error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message":"Internal server Error", "Error" : err.Error()})
 		return
 	}
 
