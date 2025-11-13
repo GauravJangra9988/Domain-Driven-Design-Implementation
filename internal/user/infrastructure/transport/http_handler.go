@@ -22,6 +22,8 @@ func (h *Handler) RegisterRoutes(r *gin.Engine) {
 	userRoute.GET("/:id", h.getUser)
 	userRoute.PUT("/:id", h.updateUser)
 	userRoute.DELETE("/:id", h.deleteUser)
+	userRoute.POST("/redisset/:id", h.redisSet)
+	userRoute.GET("/redisget/:id", h.redisGet)
 }
 
 func (h *Handler) createUser(c *gin.Context){
@@ -87,3 +89,33 @@ func (h *Handler) deleteUser(c *gin.Context){
 	c.JSON(http.StatusAccepted, gin.H{"message" : "User deleted"})
 }
 
+func (h *Handler) redisSet(c *gin.Context){
+
+	var user application.UserCreateRequest
+	id := c.Param("id")
+	err := c.Bind(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid Data"})
+		return
+	}
+	
+	userId, err := h.service.CreateUserRedis(c.Request.Context(), id, user.Name, user.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error", "Error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user_id": userId})
+}
+
+func (h *Handler) redisGet(c *gin.Context){
+
+	id := c.Param("id")
+
+	user, err := h.service.GetUserRedis(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message" : err.Error()})
+		return
+	}
+	c.JSON(http.StatusFound, gin.H{"message" : "User found", "user" : user})
+}

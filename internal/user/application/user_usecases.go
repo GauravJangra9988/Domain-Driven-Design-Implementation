@@ -68,3 +68,28 @@ func (r *UserRepository) DeleteUser(ctx context.Context, id string) error{
 
 	return r.repo.Delete(ctx, id)
 }
+
+func (r *UserRepository) CreateUserRedis(ctx context.Context, id, name, email string) (string, error){
+
+	user := &entities.User{Name: name, Email: email}
+
+	r.repo.RedisSetUser(ctx, id, user)
+
+	return id, nil
+}
+
+func (r *UserRepository) GetUserRedis(ctx context.Context, id string) (*UserResponse, error){
+
+	user, err := r.repo.RedisGetUser(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	userResponse := &UserResponse{
+		ID: id,
+		Name: user.Name,
+		Email: user.Email,
+	}
+	
+	return userResponse, nil
+}
